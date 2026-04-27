@@ -1,7 +1,9 @@
 import { Navbar } from "@/components/navbar"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { prisma } from "@/lib/prisma"
 import { 
   Users, 
   FileText, 
@@ -12,7 +14,14 @@ import {
   Briefcase
 } from "lucide-react"
 
-export default function Home() {
+export default async function Home() {
+  const candidates = await prisma.candidate.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const totalCandidates = await prisma.candidate.count();
+  const topMatches = await prisma.candidate.count({ where: { score: { gte: 80 } } });
   return (
     <div className="flex min-h-screen flex-col bg-muted/20">
       <Navbar />
@@ -34,38 +43,18 @@ export default function Home() {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1,284</div>
-                <p className="text-xs text-muted-foreground">+20% from last month</p>
+                <div className="text-2xl font-bold">{totalCandidates}</div>
+                <p className="text-xs text-muted-foreground">Analyses performed</p>
               </CardContent>
             </Card>
             <Card className="bg-card/50 backdrop-blur">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">GitHub Audits</CardTitle>
-                <GitBranch className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">842</div>
-                <p className="text-xs text-muted-foreground">98% success rate</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-card/50 backdrop-blur">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Shortlisted</CardTitle>
+                <CardTitle className="text-sm font-medium">Top Matches</CardTitle>
                 <CheckCircle2 className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">124</div>
-                <p className="text-xs text-muted-foreground">Top 10% selected</p>
-              </CardContent>
-            </Card>
-            <Card className="bg-card/50 backdrop-blur">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">Across 3 categories</p>
+                <div className="text-2xl font-bold">{topMatches}</div>
+                <p className="text-xs text-muted-foreground">Score ≥ 80%</p>
               </CardContent>
             </Card>
           </div>
@@ -82,31 +71,42 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between group">
+                  {candidates.map((candidate: any) => (
+                    <div key={candidate.id} className="flex items-center justify-between group">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                          JD
+                          {candidate.name.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium leading-none">John Doe</p>
-                          <p className="text-xs text-muted-foreground mt-1">Fullstack Engineer • 4y exp</p>
+                          <p className="text-sm font-medium leading-none">{candidate.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{new Date(candidate.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <Badge variant={i === 1 ? "default" : i === 2 ? "secondary" : "outline"}>
-                            {i === 1 ? "92% Match" : i === 2 ? "74% Match" : "45% Match"}
+                          <Badge variant={candidate.score >= 80 ? "default" : "secondary"}>
+                            {candidate.score}% Match
                           </Badge>
                         </div>
-                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link 
+                          href={`/results/${candidate.id}`}
+                          className={buttonVariants({ variant: "ghost", size: "sm", className: "opacity-0 group-hover:opacity-100 transition-opacity" })}
+                        >
                           View Report
-                        </Button>
+                        </Link>
                       </div>
                     </div>
                   ))}
+                  {candidates.length === 0 && (
+                    <p className="text-center py-8 text-muted-foreground italic">No candidates analyzed yet.</p>
+                  )}
                 </div>
-                <Button variant="outline" className="w-full mt-6">View All Candidates</Button>
+                <Link 
+                  href="/candidates" 
+                  className={buttonVariants({ variant: "outline", className: "w-full mt-6" })}
+                >
+                  View All Candidates
+                </Link>
               </CardContent>
             </Card>
 
@@ -115,56 +115,17 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-muted-foreground" />
-                  Agent Status
+                  Quick Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">JD Architect</span>
-                    <span className="text-primary font-medium">Idle</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-full bg-primary/20" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">GitHub Auditor</span>
-                    <span className="text-yellow-500 font-medium">Running...</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-[65%] bg-yellow-400 animate-pulse" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Quality Control</span>
-                    <span className="text-muted-foreground font-medium">Queued</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full" />
-                </div>
-                
-                <div className="pt-4 space-y-4">
-                  <h4 className="text-sm font-semibold">Start New Analysis</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" className="justify-start gap-2 h-16">
-                      <FileText className="h-4 w-4" />
-                      <div className="text-left">
-                        <div className="text-xs border-b border-transparent group-hover:border-primary transition-all">Upload</div>
-                        <div className="text-[10px] text-muted-foreground font-normal">Resume</div>
-                      </div>
-                    </Button>
-                    <Button variant="outline" className="justify-start gap-2 h-16">
-                      <Briefcase className="h-4 w-4" />
-                      <div className="text-left">
-                        <div className="text-xs">Select</div>
-                        <div className="text-[10px] text-muted-foreground font-normal">Job Posting</div>
-                      </div>
-                    </Button>
-                  </div>
-                  <Button className="w-full">Run Agents 🚀</Button>
-                </div>
+              <CardContent className="space-y-4 text-center py-6">
+                <p className="text-sm text-muted-foreground">Ready to find your next top engineer?</p>
+                <Link 
+                  href="/upload" 
+                  className={buttonVariants({ className: "w-full h-16 text-lg" })}
+                >
+                  Analyze New Resume 🚀
+                </Link>
               </CardContent>
             </Card>
           </div>

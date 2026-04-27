@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { Users, ExternalLink } from "lucide-react";
 
@@ -31,9 +31,9 @@ export default async function CandidatesPage() {
               </h1>
               <p className="text-muted-foreground mt-1">History of all analyzed resumes and their scores.</p>
             </div>
-            <Button asChild>
-              <Link href="/upload">Analyze New</Link>
-            </Button>
+            <Link href="/upload" className={buttonVariants()}>
+              Analyze New
+            </Link>
           </div>
 
           <Card className="shadow-lg border-none bg-card/80 backdrop-blur">
@@ -48,7 +48,7 @@ export default async function CandidatesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {candidates.map((candidate) => (
+                  {candidates.map((candidate: any) => (
                     <TableRow key={candidate.id} className="group">
                       <TableCell className="font-semibold pl-6">{candidate.name}</TableCell>
                       <TableCell>
@@ -60,11 +60,12 @@ export default async function CandidatesPage() {
                         {new Date(candidate.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right pr-6">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/results/${candidate.id}`}>
-                            View Details <ExternalLink className="ml-2 w-4 h-4" />
-                          </Link>
-                        </Button>
+                        <Link 
+                          href={`/results/${candidate.id}`}
+                          className={buttonVariants({ variant: "ghost", size: "sm" })}
+                        >
+                          View Details <ExternalLink className="ml-2 w-4 h-4" />
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}

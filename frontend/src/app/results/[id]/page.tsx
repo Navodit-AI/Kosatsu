@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, Github, FileText, User } from "lucide-react";
+import { CheckCircle2, XCircle, GitBranch, FileText, User, Users } from "lucide-react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export default async function ResultPage({ params }: { params: { id: string } }) {
   const candidate = await prisma.candidate.findUnique({
@@ -30,7 +31,12 @@ export default async function ResultPage({ params }: { params: { id: string } })
                 <User className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">{candidate.name}</h1>
+                <div className="flex items-center gap-2">
+                  <Link href="/candidates" className="text-secondary-foreground hover:text-primary transition-colors">
+                    <Users className="w-4 h-4" />
+                  </Link>
+                  <h1 className="text-3xl font-bold">{candidate.name}</h1>
+                </div>
                 <p className="text-muted-foreground">Analyzed on {new Date(candidate.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
@@ -60,7 +66,7 @@ export default async function ResultPage({ params }: { params: { id: string } })
             <Card className="shadow-lg border-none bg-card/80 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Github className="w-5 h-5" />
+                  <GitBranch className="w-5 h-5" />
                   GitHub Insights
                 </CardTitle>
               </CardHeader>

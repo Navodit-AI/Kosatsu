@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search } from "lucide-react"
 import Link from "next/link"
@@ -26,15 +26,24 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/">Dashboard</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/candidates">Candidates</Link>
-          </Button>
-          <Button size="sm" asChild>
-            <Link href="/upload">Analyze New</Link>
-          </Button>
+          <Link 
+            href="/" 
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            Dashboard
+          </Link>
+          <Link 
+            href="/candidates" 
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            Candidates
+          </Link>
+          <Link 
+            href="/upload" 
+            className={buttonVariants({ size: "sm" })}
+          >
+            Analyze New
+          </Link>
           <Separator orientation="vertical" className="h-6" />
           <Avatar className="h-8 w-8 hover:cursor-pointer">
             <AvatarImage src="https://github.com/shadcn.png" />
