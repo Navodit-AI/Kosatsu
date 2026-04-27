@@ -8,7 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Loader2, FileText, Cpu, BrainCircuit, Sparkles, Send } from "lucide-react";
+import { motion } from "framer-motion";
+import { 
+  Upload, 
+  Loader2, 
+  FileText, 
+  Cpu, 
+  BrainCircuit, 
+  Sparkles, 
+  Send,
+  ArrowRight,
+  Database,
+  Code
+} from "lucide-react";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -46,114 +58,136 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Backround Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-1000" />
-      </div>
+    <div className="min-h-screen flex flex-col bg-background relative selection:bg-primary/30">
+      <div className="fixed inset-0 grid-bg pointer-events-none opacity-20" />
+      <div className="fixed inset-0 hero-gradient pointer-events-none" />
 
       <Navbar />
       
-      <main className="flex-1 container flex flex-col items-center justify-center py-16">
-        <div className="max-w-4xl w-full grid md:grid-cols-5 gap-12 items-start">
+      <main className="flex-1 container flex flex-col items-center justify-center py-20 relative z-10">
+        <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-16 items-center">
           
-          {/* Instructions / Sidebar */}
-          <div className="md:col-span-2 space-y-8 animate-in fade-in slide-in-from-left-6 duration-700">
-            <div className="space-y-4">
-              <Badge className="rounded-full px-4 py-1 bg-primary/10 text-primary border-none text-xs font-black uppercase tracking-widest">
-                Step 1: Input Data
+          {/* Enhanced Instructions */}
+          <motion.div 
+            className="lg:col-span-5 space-y-12"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="space-y-6">
+              <Badge className="px-6 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-black uppercase tracking-[0.3em]">
+                System Initialization
               </Badge>
-              <h1 className="text-4xl font-black tracking-tight leading-none">
-                Feed the <span className="text-gradient">Agents.</span>
+              <h1 className="text-6xl font-black tracking-tighter leading-[0.9] text-glow">
+                Deploy Your <br /><span className="text-gradient-premium">Analysis Pack.</span>
               </h1>
-              <p className="text-muted-foreground font-medium leading-relaxed">
-                Our agentic pipeline requires the raw candidate data and the technical requirements to begin its multi-stage evaluation.
+              <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-sm">
+                Provide the raw candidate telemetry and job context. Our agents will handle the rest.
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               {[
-                { icon: FileText, title: "JD Architect", text: "Parses requirements into structured criteria." },
-                { icon: Cpu, title: "GitHub Auditor", text: "Scans repos for code quality and activity." },
-                { icon: BrainCircuit, title: "Quality Control", text: "Cross-checks findings for objective scoring." },
+                { icon: Code, title: "Architect Agent", text: "Generates high-precision evaluation matrices." },
+                { icon: Database, title: "Audit Agent", text: "Scrapes and evaluates GitHub repositories." },
+                { icon: BrainCircuit, title: "Logic Agent", text: "Synthesizes data into an objective score." },
               ].map((step, i) => (
-                <div key={i} className="flex gap-4 group">
-                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-card border border-border/50 shadow-lg flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                    <step.icon className="h-5 w-5" />
+                <motion.div 
+                  key={i} 
+                  className="flex gap-6 group"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + (i * 0.1) }}
+                >
+                  <div className="h-16 w-16 shrink-0 rounded-[1.5rem] glass border border-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all duration-500 shadow-xl group-hover:shadow-[0_0_30px_oklch(0.65_0.25_260/0.4)]">
+                    <step.icon className="h-6 w-6" />
                   </div>
-                  <div>
-                    <h4 className="font-bold text-sm tracking-tight">{step.title}</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">{step.text}</p>
+                  <div className="space-y-1">
+                    <h4 className="font-black text-lg tracking-tight uppercase group-hover:text-primary transition-colors">{step.title}</h4>
+                    <p className="text-sm text-muted-foreground font-medium">{step.text}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Form */}
-          <Card className="md:col-span-3 border-none shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] bg-card/50 backdrop-blur-2xl animate-in fade-in slide-in-from-right-6 duration-700">
-            <CardHeader className="text-center md:text-left pb-4">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Evaluation Payload
-              </CardTitle>
-              <CardDescription className="text-sm font-medium">Please provide the raw text for analysis.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-3">
-                  <Label htmlFor="resume" className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5" /> Resume (Plain Text)
-                  </Label>
-                  <Textarea
-                    id="resume"
-                    placeholder="Paste candidate's resume content..."
-                    className="min-h-[180px] bg-muted/20 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 resize-none transition-all focus:bg-muted/40 p-4"
-                    value={resumeText}
-                    onChange={(e) => setResumeText(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="jd" className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                    <Cpu className="w-3.5 h-3.5" /> Job Description
-                  </Label>
-                  <Textarea
-                    id="jd"
-                    placeholder="What are the key technical requirements?"
-                    className="min-h-[140px] bg-muted/20 border-none rounded-2xl focus:ring-2 focus:ring-primary/20 resize-none transition-all focus:bg-muted/40 p-4"
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                {error && (
-                  <div className="p-4 text-sm font-bold text-destructive bg-destructive/10 rounded-2xl border border-destructive/20 animate-bounce">
-                    ⚠️ {error}
+          {/* Premium Form */}
+          <motion.div
+            className="lg:col-span-7"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Card className="rounded-[3rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.6)] glass relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary to-transparent opacity-50" />
+               
+               <CardHeader className="p-10 pb-6">
+                <CardTitle className="text-2xl font-black flex items-center gap-3">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                  Payload Entry
+                </CardTitle>
+                <CardDescription className="text-base font-bold uppercase tracking-wider text-muted-foreground">Neural sequence ready for input.</CardDescription>
+              </CardHeader>
+
+              <CardContent className="p-10 pt-0">
+                <form onSubmit={handleSubmit} className="space-y-10">
+                  <div className="space-y-4">
+                    <Label htmlFor="resume" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-3">
+                      <FileText className="w-4 h-4 text-primary" /> Candidate Dossier
+                    </Label>
+                    <Textarea
+                      id="resume"
+                      placeholder="Paste resume text or repository links..."
+                      className="min-h-[200px] bg-white/5 border border-white/5 rounded-[2rem] focus:border-primary/50 focus:ring-0 resize-none transition-all focus:bg-white/[0.08] p-8 text-lg font-bold placeholder:text-white/20"
+                      value={resumeText}
+                      onChange={(e) => setResumeText(e.target.value)}
+                      required
+                    />
                   </div>
-                )}
-
-                <Button 
-                  type="submit" 
-                  className="w-full h-14 text-lg font-black rounded-2xl shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98]" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                      Engaging Neural Agents...
-                    </>
-                  ) : (
-                    <>
-                      Launch Analysis <Send className="ml-3 w-5 h-5" />
-                    </>
+                  <div className="space-y-4">
+                    <Label htmlFor="jd" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-3">
+                      <Cpu className="w-4 h-4 text-primary" /> Execution Context (JD)
+                    </Label>
+                    <Textarea
+                      id="jd"
+                      placeholder="Define the technical mission requirements..."
+                      className="min-h-[140px] bg-white/5 border border-white/5 rounded-[2rem] focus:border-primary/50 focus:ring-0 resize-none transition-all focus:bg-white/[0.08] p-8 text-lg font-bold placeholder:text-white/20"
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  {error && (
+                    <motion.div 
+                      className="p-6 text-sm font-black text-destructive bg-destructive/10 rounded-[1.5rem] border border-destructive/20"
+                      initial={{ scale: 0.9 }}
+                      animate={{ scale: 1 }}
+                    >
+                      CRITICAL FAULT: {error}
+                    </motion.div>
                   )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-20 text-2xl font-black rounded-[2rem] shadow-[0_0_40px_oklch(0.65_0.25_260/0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] group" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-4">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                        Engaging Core...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-4">
+                        Execute Pipeline <Send className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </main>
     </div>

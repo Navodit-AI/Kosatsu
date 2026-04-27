@@ -7,56 +7,33 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  --color-primary: oklch(0.65 0.25 260);
+  --color-secondary: oklch(0.7 0.2 180);
+  --color-accent: oklch(0.75 0.25 320);
 }
 
 :root {
-  --background: oklch(0.98 0.01 240);
-  --foreground: oklch(0.15 0.02 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 240);
-  --primary: oklch(0.55 0.25 260);
+  --background: oklch(0.08 0.01 240);
+  --foreground: oklch(0.98 0.01 240);
+  --card: oklch(0.12 0.02 240);
+  --card-foreground: oklch(0.98 0.01 240);
+  --popover: oklch(0.1 0.02 240);
+  --popover-foreground: oklch(0.98 0.01 240);
+  --primary: oklch(0.65 0.25 260);
   --primary-foreground: oklch(0.98 0.01 240);
-  --secondary: oklch(0.92 0.02 240);
-  --secondary-foreground: oklch(0.2 0.05 240);
-  --muted: oklch(0.95 0.01 240);
-  --muted-foreground: oklch(0.4 0.02 240);
-  --accent: oklch(0.92 0.03 260);
-  --accent-foreground: oklch(0.2 0.05 260);
-  --destructive: oklch(0.6 0.2 20);
-  --destructive-foreground: oklch(0.98 0.01 20);
-  --border: oklch(0.9 0.02 240);
-  --input: oklch(0.9 0.02 240);
-  --ring: oklch(0.55 0.25 260);
-  --chart-1: oklch(0.6 0.25 260);
-  --chart-2: oklch(0.6 0.2 180);
-  --chart-3: oklch(0.6 0.2 40);
-  --chart-4: oklch(0.7 0.15 210);
-  --chart-5: oklch(0.7 0.15 280);
-  --radius: 1rem;
-}
-
-.dark {
-  --background: oklch(0.1 0.02 240);
-  --foreground: oklch(0.95 0.01 240);
-  --card: oklch(0.15 0.02 240);
-  --card-foreground: oklch(0.95 0.01 240);
-  --popover: oklch(0.15 0.02 240);
-  --popover-foreground: oklch(0.95 0.01 240);
-  --primary: oklch(0.7 0.2 260);
-  --primary-foreground: oklch(0.1 0.02 240);
-  --secondary: oklch(0.2 0.05 240);
-  --secondary-foreground: oklch(0.95 0.01 240);
-  --muted: oklch(0.2 0.02 240);
+  --secondary: oklch(0.18 0.04 240);
+  --secondary-foreground: oklch(0.98 0.01 240);
+  --muted: oklch(0.15 0.02 240);
   --muted-foreground: oklch(0.6 0.02 240);
-  --accent: oklch(0.25 0.05 260);
-  --accent-foreground: oklch(0.95 0.01 260);
+  --accent: oklch(0.2 0.04 260);
+  --accent-foreground: oklch(0.98 0.01 260);
   --destructive: oklch(0.5 0.2 20);
-  --destructive-foreground: oklch(0.95 0.01 20);
-  --border: oklch(0.25 0.02 240);
-  --input: oklch(0.25 0.02 240);
-  --ring: oklch(0.7 0.2 260);
+  --destructive-foreground: oklch(0.98 0.01 20);
+  --border: oklch(0.2 0.02 240);
+  --input: oklch(0.2 0.02 240);
+  --ring: oklch(0.65 0.25 260);
+  --radius: 1.25rem;
 }
 
 @layer base {
@@ -64,24 +41,45 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    background-image: 
-      radial-gradient(at 0% 0%, oklch(0.6 0.2 260 / 0.03) 0, transparent 50%),
-      radial-gradient(at 100% 0%, oklch(0.6 0.2 180 / 0.03) 0, transparent 50%),
-      radial-gradient(at 100% 100%, oklch(0.6 0.2 40 / 0.03) 0, transparent 50%),
-      radial-gradient(at 0% 100%, oklch(0.7 0.15 280 / 0.03) 0, transparent 50%);
-    background-attachment: fixed;
+    @apply bg-background text-foreground antialiased selection:bg-primary/30;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
 }
 
-.glass {
-  @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+@layer utilities {
+  .hero-gradient {
+    background: radial-gradient(circle at 50% 50%, oklch(0.65 0.25 260 / 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, oklch(0.7 0.2 180 / 0.1) 0%, transparent 40%);
+  }
+
+  .glass {
+    @apply bg-card/40 backdrop-blur-3xl border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.3)];
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px oklch(0.65 0.25 260 / 0.5);
+  }
+
+  .border-glow {
+    @apply border-primary/20 shadow-[0_0_15px_oklch(0.65 0.25 260/0.1)];
+  }
+
+  .grid-bg {
+    background-image: linear-gradient(to right, oklch(1 0 0 / 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, oklch(1 0 0 / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
 }
 
-.glass-dark {
-  @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-2xl;
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-linear-to-br from-primary via-blue-500 to-violet-500;
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.text-gradient-premium {
+  @apply bg-clip-text text-transparent bg-linear-to-r from-white via-primary to-blue-400;
 }

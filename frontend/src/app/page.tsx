@@ -1,10 +1,13 @@
+"use client";
+
 import { Navbar } from "@/components/navbar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { prisma } from "@/lib/prisma"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 import { 
   Users, 
   FileText, 
@@ -16,218 +19,239 @@ import {
   ArrowRight,
   Zap,
   ShieldCheck,
-  Search
+  Search,
+  Sparkles,
+  Command
 } from "lucide-react"
 
-export default async function Home() {
-  const candidates = await prisma.candidate.findMany({
-    take: 5,
-    orderBy: { createdAt: "desc" },
-  });
+export default function Home() {
+  const [candidates, setCandidates] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total: 0, top: 0 });
 
-  const totalCandidates = await prisma.candidate.count();
-  const topMatches = await prisma.candidate.count({ where: { score: { gte: 80 } } });
+  useEffect(() => {
+    fetch("/api/candidates")
+      .then(res => res.json())
+      .then(data => {
+        setCandidates(data.slice(0, 5));
+        setStats({
+          total: data.length,
+          top: data.filter((c: any) => c.score >= 80).length
+        });
+      });
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background selection:bg-primary/20">
+    <div className="flex min-h-screen flex-col bg-background selection:bg-primary/30 relative">
+      <div className="fixed inset-0 grid-bg pointer-events-none opacity-20" />
+      <div className="fixed inset-0 hero-gradient pointer-events-none" />
+      
       <Navbar />
       
-      <main className="flex-1 container py-12 space-y-16">
-        {/* Floating Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-[10%] left-[5%] w-72 h-72 bg-primary/10 rounded-full blur-[100px] animate-pulse" />
-          <div className="absolute bottom-[20%] right-[5%] w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-700" />
-        </div>
+      <main className="flex-1 container py-20 space-y-32 relative z-10">
+        
+        {/* Animated Hero */}
+        <section className="relative text-center max-w-5xl mx-auto space-y-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Badge variant="outline" className="px-6 py-2 rounded-full border-primary/30 bg-primary/5 text-primary text-sm font-black tracking-widest uppercase mb-8 border-glow">
+              <Sparkles className="w-4 h-4 mr-2 fill-primary animate-pulse" /> 
+              Next-Gen Agentic Intelligence
+            </Badge>
+          </motion.div>
 
-        {/* Hero Section */}
-        <section className="relative text-center max-w-4xl mx-auto space-y-6">
-          <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary animate-in fade-in slide-in-from-bottom-3 duration-500">
-            <Zap className="w-3.5 h-3.5 mr-2 fill-primary" /> 
-            Agentic Recruitment Platform
-          </Badge>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
-            Evaluate Talent with <br />
-            <span className="text-gradient">Precision Logic.</span>
-          </h1>
-          <p className="text-xl text-muted-foreground font-medium max-w-2xl mx-auto leading-relaxed">
-            Kōsatsu uses a network of specialized AI agents to analyze resumes, 
-            audit code repositories, and find your next 10x engineer.
-          </p>
-          <div className="flex items-center justify-center gap-4 pt-4">
+          <motion.h1 
+            className="text-6xl md:text-8xl font-black tracking-tight leading-[0.95]"
+            initial={{ opacity: 0, filter: "blur(10px)" }}
+            animate={{ opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Hire Smarter with <br />
+            <span className="text-gradient-premium text-glow">Agentic Logic.</span>
+          </motion.h1>
+
+          <motion.p 
+            className="text-xl md:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Kōsatsu deploys specialized AI agents to audit codebases, verify skills, 
+            and identify top matches across your entire candidate pool.
+          </motion.p>
+
+          <motion.div 
+            className="flex flex-col md:flex-row items-center justify-center gap-6 pt-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
             <Link 
               href="/upload" 
-              className={buttonVariants({ size: "lg", className: "rounded-full px-8 h-14 text-lg font-bold shadow-2xl shadow-primary/30" })}
+              className={buttonVariants({ size: "lg", className: "rounded-2xl px-10 h-16 text-xl font-black shadow-[0_0_30px_oklch(0.65_0.25_260/0.3)] hover:shadow-[0_0_50px_oklch(0.65_0.25_260/0.5)] transition-all duration-500 scale-100 hover:scale-[1.03]" })}
             >
-              Analyze New Resume <ArrowRight className="ml-2 w-5 h-5" />
+              Start Analysis <ArrowRight className="ml-3 w-6 h-6" />
             </Link>
-          </div>
+            <Link 
+              href="/candidates" 
+              className={buttonVariants({ variant: "outline", size: "lg", className: "rounded-2xl px-10 h-16 text-xl font-bold border-white/10 glass hover:bg-white/5 transition-all" })}
+            >
+              View Pipeline
+            </Link>
+          </motion.div>
         </section>
 
-        {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in zoom-in duration-700 delay-200">
+        {/* Dynamic Stats Cards */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {[
-            { title: "Total Resumes", value: totalCandidates, icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-            { title: "Top Matches", value: topMatches, icon: ShieldCheck, color: "text-green-500", bg: "bg-green-500/10" },
-            { title: "GitHub Audits", value: totalCandidates, icon: GitBranch, color: "text-violet-500", bg: "bg-violet-500/10" },
-            { title: "Active Hirings", value: "1", icon: Briefcase, color: "text-orange-500", bg: "bg-orange-500/10" },
+            { title: "Resumes", value: stats.total, icon: FileText, color: "text-blue-400", bg: "bg-blue-400/10" },
+            { title: "A+ Talent", value: stats.top, icon: ShieldCheck, color: "text-emerald-400", bg: "bg-emerald-400/10" },
+            { title: "GitHub Audits", value: stats.total, icon: GitBranch, color: "text-indigo-400", bg: "bg-indigo-400/10" },
+            { title: "Processing", value: "Live", icon: Zap, color: "text-amber-400", bg: "bg-amber-400/10" },
           ].map((stat, i) => (
-            <Card key={i} className="group overflow-hidden border-none shadow-xl bg-card/40 backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-card/60">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{stat.title}</CardTitle>
-                <div className={cn("p-2 rounded-xl transition-colors", stat.bg, stat.color)}>
-                  <stat.icon className="h-5 w-5" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-black tabular-nums tracking-tighter">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1 font-medium">Real-time data</p>
-              </CardContent>
-            </Card>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            >
+              <Card className="glass border-none group hover:border-primary/20 transition-all duration-500">
+                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                  <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">{stat.title}</CardTitle>
+                  <div className={cn("p-2.5 rounded-xl", stat.bg, stat.color)}>
+                    <stat.icon className="h-5 w-5" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-black tracking-tighter">{stat.value}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
-        <div className="grid gap-8 md:grid-cols-7">
-          {/* Recent Evaluations */}
-          <Card className="col-span-1 md:col-span-4 overflow-hidden border-none shadow-2xl bg-card/40 backdrop-blur-md">
-            <CardHeader className="border-b border-border/50 bg-muted/20 pb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                    <TrendingUp className="h-6 w-6 text-primary" />
-                    Live Evaluations
-                  </CardTitle>
-                  <CardDescription className="text-base">Track and manage your candidate pipeline.</CardDescription>
-                </div>
-                <Link href="/candidates" className={buttonVariants({ variant: "ghost", size: "sm", className: "rounded-full" })}>
-                  View All
-                </Link>
+        <div className="grid gap-12 lg:grid-cols-12">
+          {/* Main List */}
+          <div className="lg:col-span-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-2xl font-black flex items-center gap-3">
+                  <TrendingUp className="text-primary h-7 w-7" />
+                  Latest Profiles
+                </h3>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-border/30">
-                {candidates.map((candidate: any) => (
-                  <div key={candidate.id} className="flex items-center justify-between p-6 hover:bg-muted/30 transition-colors group">
-                    <div className="flex items-center gap-5">
-                      <div className="h-14 w-14 rounded-2xl bg-linear-to-br from-primary/20 to-blue-500/10 flex items-center justify-center text-primary font-black text-xl shadow-inner uppercase">
-                        {candidate.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-lg font-bold leading-tight">{candidate.name}</p>
-                        <div className="flex items-center gap-3 mt-1.5 font-medium">
-                          <span className="flex items-center text-xs text-muted-foreground">
-                            <Clock className="w-3.5 h-3.5 mr-1" />
-                            {new Date(candidate.createdAt).toLocaleDateString()}
-                          </span>
-                          <span className="h-1 w-1 rounded-full bg-border" />
-                          <span className="text-xs text-primary/80">Resume Analyzed</span>
+
+              <div className="space-y-4">
+                {candidates.map((candidate: any, i) => (
+                  <motion.div
+                    key={candidate.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Link href={`/results/${candidate.id}`}>
+                      <div className="glass p-6 rounded-[2rem] flex items-center justify-between group hover:bg-white/5 border-white/5 hover:border-primary/20 transition-all duration-300">
+                        <div className="flex items-center gap-6">
+                          <div className="h-16 w-16 rounded-[1.25rem] bg-linear-to-br from-primary/30 to-blue-500/10 flex items-center justify-center text-white font-black text-2xl shadow-inner uppercase border border-white/10 group-hover:bg-primary transition-all">
+                            {candidate.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-xl font-bold group-hover:text-primary transition-colors">{candidate.name}</p>
+                            <div className="flex items-center gap-3 mt-1 font-bold text-muted-foreground text-xs uppercase tracking-widest">
+                               <Clock className="w-3.5 h-3.5" />
+                               {new Date(candidate.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-10">
+                          <div className="px-5 py-2 rounded-2xl bg-white/5 border border-white/5 font-black text-sm tracking-tight">
+                            {candidate.score}% SC
+                          </div>
+                          <div className="h-10 w-10 rounded-full flex items-center justify-center bg-white/5 group-hover:bg-primary group-hover:text-black transition-all">
+                            <ArrowRight className="w-5 h-5" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <div className={cn(
-                          "px-3 py-1 rounded-full text-xs font-black tracking-tight uppercase shadow-inner",
-                          candidate.score >= 80 ? "bg-green-500/10 text-green-500" : "bg-primary/10 text-primary"
-                        )}>
-                          {candidate.score}% Match
-                        </div>
-                      </div>
-                      <Link 
-                        href={`/results/${candidate.id}`}
-                        className={cn(
-                          buttonVariants({ variant: "secondary", size: "sm" }),
-                          "rounded-full font-bold transition-all group-hover:bg-primary group-hover:text-primary-foreground"
-                        )}
-                      >
-                        View Report
-                      </Link>
-                    </div>
-                  </div>
+                    </Link>
+                  </motion.div>
                 ))}
                 {candidates.length === 0 && (
-                  <div className="p-20 text-center space-y-4">
-                    <div className="mx-auto w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
-                      <Users className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground font-medium italic">Your candidate list is empty.</p>
+                  <div className="glass p-20 text-center rounded-[3rem] border-dashed border-white/10">
+                    <Command className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                    <p className="text-muted-foreground font-bold uppercase tracking-widest">No candidates detected yet.</p>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </motion.div>
+          </div>
 
-          {/* Quick Stats / Info Card */}
-          <div className="col-span-1 md:col-span-3 space-y-6">
-            <Card className="border-none shadow-2xl bg-primary/90 text-primary-foreground overflow-hidden relative group">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
-              <CardHeader>
-                <CardTitle className="text-xl font-bold flex items-center gap-2">
-                  <Briefcase className="w-5 h-5" />
-                  Hiring Pipeline
-                </CardTitle>
-                <CardDescription className="text-primary-foreground/70">
-                  Ready to assess your next top engineer?
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6 relative z-10">
-                <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md border border-white/10 text-center">
-                  <p className="text-sm font-medium opacity-80 mb-4">Click below to start a new deep-dive evaluation.</p>
-                  <Link 
-                    href="/upload" 
-                    className={buttonVariants({ variant: "secondary", className: "w-full h-14 rounded-xl text-lg font-black shadow-xl" })}
-                  >
-                    Start Analysis 🚀
-                  </Link>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1 text-center bg-white/5 p-3 rounded-xl">
-                    <p className="text-2xl font-black">98.4%</p>
-                    <p className="text-[10px] uppercase font-bold tracking-widest opacity-60">Accuracy</p>
-                  </div>
-                  <div className="space-y-1 text-center bg-white/5 p-3 rounded-xl">
-                    <p className="text-2xl font-black">&lt; 30s</p>
-                    <p className="text-[10px] uppercase font-bold tracking-widest opacity-60">Analysis</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-2xl bg-card/40 backdrop-blur-md">
-              <CardHeader>
-                <CardTitle className="text-sm font-black uppercase tracking-widest text-muted-foreground">System Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  { name: "JD Architect", status: "Operational", color: "bg-green-500" },
-                  { name: "GitHub Auditor", status: "Operational", color: "bg-green-500" },
-                  { name: "Quality Controller", status: "Idle", color: "bg-primary/50" },
-                ].map((agent, i) => (
-                  <div key={i} className="flex items-center justify-between p-1">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("h-2 w-2 rounded-full", agent.color)} />
-                      <span className="text-sm font-bold">{agent.name}</span>
+          {/* Sidebar CTA */}
+          <div className="lg:col-span-4 h-full">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="sticky top-24"
+            >
+               <div className="relative p-[1px] rounded-[2.5rem] bg-linear-to-br from-primary/50 via-transparent to-blue-500/50">
+                  <div className="bg-background rounded-[2.5rem] p-10 space-y-10 border-glow">
+                    <div className="space-y-4">
+                      <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Zap className="h-7 w-7 fill-primary" />
+                      </div>
+                      <h3 className="text-3xl font-black tracking-tight leading-tight">Ready for <br />Deep Analysis?</h3>
+                      <p className="text-muted-foreground font-medium">Click below to engage the agentic screening system.</p>
                     </div>
-                    <span className="text-xs font-medium text-muted-foreground">{agent.status}</span>
+
+                    <Link 
+                      href="/upload" 
+                      className={buttonVariants({ className: "w-full h-16 rounded-2xl text-xl font-black shadow-[0_0_30px_oklch(0.65_0.25_260/0.2)]" })}
+                    >
+                      Start Analysis 🚀
+                    </Link>
+
+                    <div className="pt-8 border-t border-white/5 grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-xl font-black">20+</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Agents</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-black">99%</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Accuracy</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-black">Sub 1m</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Audit</p>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+               </div>
+            </motion.div>
           </div>
         </div>
       </main>
 
-      <footer className="border-t bg-muted/30 py-12 mt-20">
-        <div className="container flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all">
-             <div className="h-6 w-6 rounded-lg bg-linear-to-br from-primary to-blue-600 flex items-center justify-center">
-              <Sparkles className="text-primary-foreground h-3 w-3" />
+      <footer className="border-t border-white/5 py-20 mt-40 glass">
+        <div className="container flex flex-col items-center gap-10">
+          <div className="flex items-center gap-3">
+             <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center shadow-[0_0_20px_oklch(0.65_0.25_260/0.4)]">
+              <Sparkles className="text-black h-5 w-5" />
             </div>
-            <span className="font-bold text-muted-foreground">Kōsatsu</span>
+            <span className="text-2xl font-black tracking-tighter">KŌSATSU</span>
           </div>
-          <p className="text-sm text-muted-foreground/60 font-medium">© 2026 Agentic Recruiting Systems. Built for top performers.</p>
-          <div className="flex gap-6 text-sm font-medium text-muted-foreground/60">
-            <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
+          <p className="text-muted-foreground font-medium text-center">Built with the future of recruitment in mind. <br />Powered by an ensemble of autonomous AI agents.</p>
+          <div className="flex gap-8 text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">
+             <Link href="#" className="hover:text-primary">Twitter</Link>
+             <Link href="#" className="hover:text-primary">GitHub</Link>
+             <Link href="#" className="hover:text-primary">Discord</Link>
           </div>
         </div>
       </footer>

@@ -1,71 +1,74 @@
+"use client";
+
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search, Sparkles } from "lucide-react"
+import { Search, Sparkles, Command } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
-            <div className="h-9 w-9 rounded-xl bg-linear-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
-              <Sparkles className="text-primary-foreground h-5 w-5" />
+    <motion.header 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/60 backdrop-blur-2xl px-4 md:px-0"
+    >
+      <div className="container flex h-20 items-center justify-between">
+        <div className="flex items-center gap-10">
+          <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 active:scale-95 group">
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_20px_oklch(0.65_0.25_260/0.3)] group-hover:shadow-[0_0_40px_oklch(0.65_0.25_260/0.6)] transition-all">
+              <Sparkles className="text-black h-5 w-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
+            <span className="text-2xl font-black tracking-tighter uppercase">
               Kōsatsu
             </span>
           </Link>
           
-          <nav className="hidden md:flex items-center gap-1">
-            <Link 
-              href="/" 
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors hover:text-primary rounded-full hover:bg-primary/5"
-              )}
-            >
-              Dashboard
-            </Link>
-            <Link 
-              href="/candidates" 
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-colors hover:text-primary rounded-full hover:bg-primary/5"
-              )}
-            >
-              Candidates
-            </Link>
+          <nav className="hidden lg:flex items-center gap-2">
+            {[
+              { label: "Dashboard", href: "/" },
+              { label: "Candidates", href: "/candidates" },
+              { label: "Settings", href: "#" },
+            ].map((item) => (
+              <Link 
+                key={item.label}
+                href={item.href} 
+                className="px-5 py-2 text-sm font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hover:bg-white/5 rounded-full"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
         
-        <div className="flex-1 px-8 hidden md:block max-w-md">
+        <div className="hidden xl:block flex-1 max-w-sm ml-10">
           <div className="relative group">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-4 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input
-              type="search"
-              placeholder="Search evaluations..."
-              className="w-full bg-muted/40 pl-10 pr-4 py-2 rounded-2xl border-none focus:ring-2 focus:ring-primary/20 h-10 text-sm transition-all focus:bg-muted/60"
+              type="text"
+              placeholder="Command + K to search..."
+              className="w-full bg-white/5 pl-12 pr-4 py-3 rounded-2xl border border-white/5 focus:border-primary/50 focus:ring-0 text-sm font-bold transition-all"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <Link 
             href="/upload" 
             className={buttonVariants({ 
-              size: "sm", 
-              className: "rounded-full px-5 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold" 
+              className: "rounded-full px-8 h-12 shadow-[0_0_20px_oklch(0.65_0.25_260/0.2)] font-black uppercase tracking-widest text-xs" 
             })}
           >
-            Analyze New
+            New Analysis
           </Link>
-          <div className="h-8 w-[1px] bg-border mx-2" />
-          <Avatar className="h-9 w-9 border-2 border-background shadow-md hover:scale-105 transition-transform cursor-pointer">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback className="bg-primary/10 text-primary">NS</AvatarFallback>
+          <div className="h-6 w-px bg-white/10 mx-2" />
+          <Avatar className="h-10 w-10 border-2 border-white/10 shadow-lg hover:scale-110 transition-transform cursor-pointer ring-2 ring-primary/20">
+            <AvatarImage src="https://github.com/navodit-ai.png" />
+            <AvatarFallback className="bg-primary/20 text-primary font-bold">NS</AvatarFallback>
           </Avatar>
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }
