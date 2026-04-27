@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+pydantic-settings
+python-dotenv
+langchain
+langchain-groq
+langgraph
+pygithub
+PyPDF2
+python-docx
+langchain-community
+typing-extensions
