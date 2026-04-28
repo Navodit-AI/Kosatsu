@@ -1,8 +1,8 @@
-# 🎯 Kōsatsu: Intelligent Recruitment Pipeline
+#  Kōsatsu: Intelligent Recruitment Pipeline
 
 Kōsatsu (考察 - "Analysis/Observation") is a sophisticated, agentic recruitment tool designed to bridge the gap between thousands of resumes and the perfect technical hire. By combining LLM-powered resume screening with real-world GitHub data auditing, it provides a 360-degree view of a candidate's technical prowess.
 
-## 🚀 Project Structure
+##  Project Structure
 
 ```text
 .
@@ -18,14 +18,14 @@ Kōsatsu (考察 - "Analysis/Observation") is a sophisticated, agentic recruitme
 └── README.md
 ```
 
-## ✨ Key Features
+## Key Features
 
 *   **Multi-Agent Workflow:** Built with **LangGraph**, the system uses specialized agents for Job Description architecture, Resume Screening, and GitHub Auditing.
 *   **GitHub Technical Audit:** Automatically extracts GitHub handles from resumes and fetches real-time data on repositories, languages, and contribution quality.
 *   **Next.js Dashboard:** A premium, modern interface to visualize candidate match scores, skill distributions, and project relevance.
 *   **Deterministic Scoring:** USes a 100-point weighted formula (Technical Skills, Projects, Experience, GitHub Activity).
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend:** Next.js 15, TailwindCSS, shadcn/ui, Lucide Icons.
 - **AI Framework:** [LangGraph](https://github.com/langchain-ai/langgraph) / [LangChain](https://github.com/langchain-ai/langchain)
@@ -33,7 +33,7 @@ Kōsatsu (考察 - "Analysis/Observation") is a sophisticated, agentic recruitme
 - **Data Viz:** Plotly (Backend) / Recharts (Planned for Frontend)
 - **Extraction:** PyGithub, PyPDF2, python-docx
 
-## 📋 Getting Started
+##  Getting Started
 
 ### Backend Setup
 1. `cd backend`
@@ -47,4 +47,4 @@ Kōsatsu (考察 - "Analysis/Observation") is a sophisticated, agentic recruitme
 3. `npm run dev`
 
 ---
-Built with ❤️ for better hiring.
+Built with <3 for better hiring.
