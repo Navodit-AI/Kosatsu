@@ -2,6 +2,7 @@ import os
 import re
 import json
 import hashlib
+from pathlib import Path
 from typing import Literal, List
 from typing_extensions import TypedDict
 from dotenv import load_dotenv
@@ -13,7 +14,7 @@ from langgraph.graph import StateGraph, START, END
 from models.schemas import CandidateReport, SkillMatch, LanguageMatch, ProjectHighlight, EvaluationScore
 from services.github_service import GithubService
 
-load_dotenv()
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env")
 
 # Scoring Rubric
 SCORING_RUBRIC = """
@@ -98,6 +99,8 @@ class AnalysisService:
         github_match = re.search(r"GITHUB:\s*(\S+)", response, re.IGNORECASE)
         github_handle = github_match.group(1) if github_match else "unknown"
         github_handle = re.sub(r"https?://(www\.)?github\.com/", "", github_handle).strip("/")
+        # LLM output often includes trailing punctuation after handles (e.g., "octocat,")
+        github_handle = github_handle.strip(".,;:!?)(")
         return {"screening_verdict": response, "is_technical_match": is_match, "github_handle": github_handle}
 
     def github_auditor(self, state: RecruiterState):

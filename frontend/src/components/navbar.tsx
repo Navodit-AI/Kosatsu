@@ -14,7 +14,7 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/60 backdrop-blur-2xl px-4 md:px-0"
     >
-      <div className="container flex h-20 items-center justify-between">
+      <div className="page-shell flex h-20 items-center justify-between">
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 active:scale-95 group">
             <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_20px_oklch(0.65_0.25_260/0.3)] group-hover:shadow-[0_0_40px_oklch(0.65_0.25_260/0.6)] transition-all">

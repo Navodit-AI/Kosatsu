@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException, Body
+import os
+from functools import lru_cache
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import AnalysisRequest, AnalysisResponse
 from services.analyzer import AnalysisService
@@ -15,7 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-analyzer = AnalysisService()
+@lru_cache(maxsize=1)
+def get_analyzer() -> AnalysisService:
+    if not os.getenv("GROQ_API_KEY"):
+        raise RuntimeError("Missing GROQ_API_KEY environment variable")
+    return AnalysisService()
 
 @app.get("/")
 async def root():
@@ -27,6 +33,7 @@ async def analyze_resume(request: AnalysisRequest):
         raise HTTPException(status_code=400, detail="Resume text is required")
     
     try:
+        analyzer = get_analyzer()
         report = analyzer.run_analysis(request.resume_text, request.job_description)
         
         return AnalysisResponse(
@@ -35,6 +42,8 @@ async def analyze_resume(request: AnalysisRequest):
             github_insights=report.github_summary or "No GitHub data",
             full_report=report
         )
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         print(f"Error during analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

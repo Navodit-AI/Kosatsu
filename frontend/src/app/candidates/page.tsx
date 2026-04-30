@@ -21,7 +21,7 @@ export default async function CandidatesPage() {
   return (
     <div className="min-h-screen flex flex-col bg-muted/20">
       <Navbar />
-      <main className="flex-1 container py-12">
+      <main className="flex-1 page-shell py-12">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex items-center justify-between">
             <div>

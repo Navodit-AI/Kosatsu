@@ -29,7 +29,7 @@ export default async function ResultPage({ params }: { params: { id: string } })
       
       <Navbar />
       
-      <main className="flex-1 container py-16 relative z-10">
+      <main className="flex-1 page-shell py-16 relative z-10">
         <div className="max-w-5xl mx-auto space-y-12">
           
           {/* Header */}

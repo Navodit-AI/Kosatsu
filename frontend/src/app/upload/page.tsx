@@ -64,7 +64,7 @@ export default function UploadPage() {
 
       <Navbar />
       
-      <main className="flex-1 container flex flex-col items-center justify-center py-20 relative z-10">
+      <main className="flex-1 page-shell flex flex-col items-center justify-center py-20 relative z-10">
         <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-16 items-center">
           
           {/* Enhanced Instructions */}

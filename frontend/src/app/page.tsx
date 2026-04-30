@@ -47,7 +47,7 @@ export default function Home() {
       
       <Navbar />
       
-      <main className="flex-1 container py-20 space-y-32 relative z-10">
+      <main className="flex-1 page-shell py-20 space-y-32 relative z-10">
         
         {/* Animated Hero */}
         <section className="relative text-center max-w-5xl mx-auto space-y-10">
@@ -240,7 +240,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-white/5 py-20 mt-40 glass">
-        <div className="container flex flex-col items-center gap-10">
+        <div className="page-shell flex flex-col items-center gap-10">
           <div className="flex items-center gap-3">
              <div className="h-10 w-10 rounded-2xl bg-primary flex items-center justify-center shadow-[0_0_20px_oklch(0.65_0.25_260/0.4)]">
               <Sparkles className="text-black h-5 w-5" />
