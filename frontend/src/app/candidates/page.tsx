@@ -9,9 +9,15 @@ import Link from "next/link";
 import { Users, ExternalLink } from "lucide-react";
 
 export default async function CandidatesPage() {
-  const candidates = await prisma.candidate.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  let candidates = [];
+  try {
+    candidates = await prisma.candidate.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Database fetch failed:", error);
+    // Fallback to empty list if DB is not ready or fails on Vercel
+  }
 
   const getScoreVariant = (score: number) => {
     if (score >= 80) return "default";
