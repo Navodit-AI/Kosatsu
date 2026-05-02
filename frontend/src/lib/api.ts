@@ -5,8 +5,23 @@ interface AnalysisResponse {
   full_report: any;
 }
 
-export async function analyzeResume(resumeText: string, jobDescription: string): Promise<AnalysisResponse> {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+function resolveBackendUrl(origin?: string): string {
+  const configured = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  if (configured.startsWith("/")) {
+    if (!origin) {
+      throw new Error("Relative NEXT_PUBLIC_BACKEND_URL requires request origin");
+    }
+    return new URL(configured, origin).toString().replace(/\/$/, "");
+  }
+  return configured;
+}
+
+export async function analyzeResume(
+  resumeText: string,
+  jobDescription: string,
+  requestOrigin?: string
+): Promise<AnalysisResponse> {
+  const backendUrl = resolveBackendUrl(requestOrigin);
   
   try {
     const response = await fetch(`${backendUrl}/analyze`, {

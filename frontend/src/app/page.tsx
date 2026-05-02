@@ -32,12 +32,15 @@ export default function Home() {
     fetch("/api/candidates")
       .then(res => res.json())
       .then(data => {
-        setCandidates(data.slice(0, 5));
-        setStats({
-          total: data.length,
-          top: data.filter((c: any) => c.score >= 80).length
-        });
-      });
+        if (Array.isArray(data)) {
+          setCandidates(data.slice(0, 5));
+          setStats({
+            total: data.length,
+            top: data.filter((c: any) => c.score >= 80).length
+          });
+        }
+      })
+      .catch(err => console.error("Dashboard fetch error:", err));
   }, []);
 
   return (

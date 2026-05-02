@@ -9,9 +9,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export default async function ResultPage({ params }: { params: { id: string } }) {
+export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const candidate = await prisma.candidate.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!candidate) return notFound();

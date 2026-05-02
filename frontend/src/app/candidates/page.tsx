@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";

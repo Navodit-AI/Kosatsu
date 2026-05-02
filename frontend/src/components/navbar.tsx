@@ -29,7 +29,7 @@ export function Navbar() {
             {[
               { label: "Dashboard", href: "/" },
               { label: "Candidates", href: "/candidates" },
-              { label: "Settings", href: "#" },
+              { label: "Settings", href: "/settings" },
             ].map((item) => (
               <Link 
                 key={item.label}

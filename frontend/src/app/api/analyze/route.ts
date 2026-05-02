@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { analyzeResume } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
     const { resume_text, job_description } = await request.json();
+    const requestOrigin = new URL(request.url).origin;
 
     if (!resume_text || !job_description) {
       return NextResponse.json(
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // 1. Call FastAPI backend
-    const result = await analyzeResume(resume_text, job_description);
+    const result = await analyzeResume(resume_text, job_description, requestOrigin);
 
     // 2. Save result to SQLite
     const candidate = await prisma.candidate.create({
@@ -25,6 +27,10 @@ export async function POST(request: Request) {
         github_data: result.github_insights,
       },
     });
+
+    // 3. Revalidate paths to update dashboard and candidates list
+    revalidatePath("/");
+    revalidatePath("/candidates");
 
     return NextResponse.json({
       id: candidate.id,
