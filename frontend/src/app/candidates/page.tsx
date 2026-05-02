@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Users, ExternalLink } from "lucide-react";
 
 export default async function CandidatesPage() {
-  let candidates = [];
+  let candidates: any[] = [];
   try {
     candidates = await prisma.candidate.findMany({
       orderBy: { createdAt: "desc" },
