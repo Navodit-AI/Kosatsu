@@ -42,7 +42,7 @@ class CandidateReport(BaseModel):
     cgpa: str = ""
     github_handle: str = ""
     years_of_experience: str = "Unknown"
-    match_score: int = Field(default=0)
+    match_score: int = Field(default=0, description="Match score from 0-100. Provide as a plain integer.")
     skill_matches: List[SkillMatch] = Field(default_factory=list)
     language_matches: List[LanguageMatch] = Field(default_factory=list)
     project_highlights: List[ProjectHighlight] = Field(default_factory=list)
@@ -57,12 +57,14 @@ class CandidateReport(BaseModel):
     @field_validator("match_score", mode="before")
     @classmethod
     def ensure_int(cls, v):
+        if v is None:
+            return 0
         if isinstance(v, str):
             cleaned = re.sub(r'[^0-9]', '', v)
             return int(cleaned) if cleaned else 0
         try:
             return int(v)
-        except:
+        except (ValueError, TypeError):
             return 0
 
 class AnalysisResponse(BaseModel):

@@ -119,18 +119,104 @@ class AnalysisService:
         return {"project_analysis": response.content}
 
     def quality_control_officer(self, state: RecruiterState):
-        class CoreReport(BaseModel):
-            candidate_name: str = "Candidate"
-            match_score: int = 0
-            final_decision: str = "NO_MATCH"
-            summary: str = ""
+        """
+        Two-pass structured output to avoid tool validation errors.
+        """
+        resume    = state["resume_text"]
+        jd        = state["jd_analysis"]
+        screening = state.get("screening_verdict", "N/A")
+        github    = state.get("github_audit", "Not available")
+        skills    = state.get("skill_analysis", "N/A")
+        projects  = state.get("project_analysis", "N/A")
 
-        prompt = (
-            f"Fill results based on rubric.\n{SCORING_RUBRIC}\n\n"
-            f"RESUME:\n{state['resume_text']}\n\nJD:\n{state['jd_analysis']}\n\n"
-            f"SCREENING: {state['screening_verdict']}\n\nGITHUB: {state.get('github_audit', '')}"
+        context = (
+            f"RESUME:\n{resume}\n\n"
+            f"JD REQUIREMENTS:\n{jd}\n\n"
+            f"SCREENING:\n{screening}\n\n"
+            f"GITHUB:\n{github}\n\n"
+            f"SKILL ANALYSIS:\n{skills}\n\n"
+            f"PROJECT ANALYSIS:\n{projects}"
         )
-        report = self.llm.with_structured_output(CandidateReport).invoke(prompt)
+
+        # ── PASS 1: Core fields only (flat schema) ──────────────────────────
+        class CoreReport(BaseModel):
+            candidate_name: str = "Unknown"
+            email: str = ""
+            phone_no: str = ""
+            university_name: str = ""
+            cgpa: str = ""
+            github_handle: str = ""
+            years_of_experience: str = "Unknown"
+            match_score: int = Field(default=0, description="Integer 0-100. IMPORTANT: Provide as plain number, no quotes.")
+            final_decision: str = "NO_MATCH"
+            cultural_fit_notes: str = ""
+            strengths: List[str] = Field(default_factory=list)
+            red_flags: List[str] = Field(default_factory=list)
+            outreach_email_draft: str = ""
+
+            @field_validator("match_score", mode="before")
+            @classmethod
+            def to_int(cls, v):
+                if isinstance(v, str):
+                    c = re.sub(r'[^0-9]', '', v)
+                    return int(c) if c else 0
+                try: return int(v)
+                except: return 0
+
+        pass1_prompt = (
+            "Fill the CoreReport for this candidate. "
+            "IMPORTANT: match_score must be a plain integer like 75, NOT a string.\n\n"
+            + SCORING_RUBRIC
+            + "\n\n" + context
+        )
+
+        try:
+            core = self.llm.with_structured_output(CoreReport).invoke(pass1_prompt)
+        except Exception as e:
+            print(f"Pass 1 failed: {e}")
+            # Fallback for core fields
+            core = CoreReport(candidate_name="Error Candidate", match_score=0)
+
+        # ── PASS 2: Lists only ─────────────────────────────────────────────
+        class ListsReport(BaseModel):
+            skill_matches: List[SkillMatch] = Field(default_factory=list)
+            language_matches: List[LanguageMatch] = Field(default_factory=list)
+            project_highlights: List[ProjectHighlight] = Field(default_factory=list)
+            evaluation_scores: List[EvaluationScore] = Field(default_factory=list)
+
+        pass2_prompt = (
+            "Fill the ListsReport for this candidate based on the analysis context.\n\n"
+            + context
+        )
+
+        try:
+            lists = self.llm.with_structured_output(ListsReport).invoke(pass2_prompt)
+        except Exception as e:
+            print(f"Pass 2 failed: {e}")
+            lists = ListsReport()
+
+        # Merge into final CandidateReport
+        report = CandidateReport(
+            candidate_name      = core.candidate_name,
+            email               = core.email,
+            phone_no            = core.phone_no,
+            university_name     = core.university_name,
+            cgpa                = core.cgpa,
+            github_handle       = core.github_handle,
+            years_of_experience = core.years_of_experience,
+            match_score         = core.match_score,
+            final_decision      = core.final_decision,
+            cultural_fit_notes  = core.cultural_fit_notes,
+            strengths           = core.strengths,
+            red_flags           = core.red_flags,
+            outreach_email_draft= core.outreach_email_draft,
+            skill_matches       = lists.skill_matches,
+            language_matches    = lists.language_matches,
+            project_highlights  = lists.project_highlights,
+            evaluation_scores   = lists.evaluation_scores,
+            github_summary      = github,
+        )
+
         return {"final_evaluation": report}
 
     def run_analysis(self, resume_text: str, job_description: str):
