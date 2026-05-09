@@ -1,22 +1,39 @@
 import { NextResponse } from "next/server";
-import { analyzeResume } from "@/lib/api";
+import { analyzeResume, analyzeResumeFile } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
   try {
-    const { resume_text, job_description } = await request.json();
+    const contentType = request.headers.get("content-type") || "";
     const requestOrigin = new URL(request.url).origin;
+    let result;
 
-    if (!resume_text || !job_description) {
-      return NextResponse.json(
-        { error: "Resume text and job description are required" },
-        { status: 400 }
-      );
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const file = formData.get("file") as File;
+      const job_description = formData.get("job_description") as string;
+
+      if (!file || !job_description) {
+        return NextResponse.json(
+          { error: "File and job description are required" },
+          { status: 400 }
+        );
+      }
+      
+      result = await analyzeResumeFile(file, job_description, requestOrigin);
+    } else {
+      const { resume_text, job_description } = await request.json();
+
+      if (!resume_text || !job_description) {
+        return NextResponse.json(
+          { error: "Resume text and job description are required" },
+          { status: 400 }
+        );
+      }
+      
+      result = await analyzeResume(resume_text, job_description, requestOrigin);
     }
-
-    // 1. Call FastAPI backend
-    const result = await analyzeResume(resume_text, job_description, requestOrigin);
 
     // 2. Save result to SQLite
     const candidate = await prisma.candidate.create({

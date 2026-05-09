@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { 
   Upload, 
@@ -25,9 +26,11 @@ import {
 export default function UploadPage() {
   const router = useRouter();
   const [resumeText, setResumeText] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,13 +38,21 @@ export default function UploadPage() {
     setError("");
 
     try {
+      const formData = new FormData();
+      if (file) {
+        formData.append("file", file);
+      } else {
+        formData.append("resume_text", resumeText);
+      }
+      formData.append("job_description", jobDescription);
+
       const response = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: file ? formData : JSON.stringify({
           resume_text: resumeText,
           job_description: jobDescription,
         }),
+        headers: file ? {} : { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
@@ -54,6 +65,31 @@ export default function UploadPage() {
     } catch (err: any) {
       setError(err.message);
       setIsLoading(false);
+    }
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+      setResumeText("");
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      setResumeText("");
     }
   };
 
@@ -132,18 +168,76 @@ export default function UploadPage() {
               <CardContent className="p-10 pt-0">
                 <form onSubmit={handleSubmit} className="space-y-10">
                   <div className="space-y-4">
-                    <Label htmlFor="resume" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-3">
-                      <FileText className="w-4 h-4 text-primary" /> Candidate Dossier
+                    <Label className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center justify-between gap-3 w-full">
+                      <span className="flex items-center gap-3">
+                        <FileText className="w-4 h-4 text-primary" /> Candidate Dossier
+                      </span>
+                      {file && (
+                        <button 
+                          type="button" 
+                          onClick={() => setFile(null)}
+                          className="text-primary hover:text-primary/80 transition-colors flex items-center gap-1 normal-case font-bold"
+                        >
+                          Clear File
+                        </button>
+                      )}
                     </Label>
-                    <Textarea
-                      id="resume"
-                      placeholder="Paste resume text or repository links..."
-                      className="min-h-[200px] bg-white/5 border border-white/5 rounded-[2rem] focus:border-primary/50 focus:ring-0 resize-none transition-all focus:bg-white/[0.08] p-8 text-lg font-bold placeholder:text-white/20"
-                      value={resumeText}
-                      onChange={(e) => setResumeText(e.target.value)}
-                      required
-                    />
+                    
+                    {!file ? (
+                      <div 
+                        className={cn(
+                          "relative group transition-all duration-300 rounded-[2rem]",
+                          isDragging ? "scale-[1.02]" : ""
+                        )}
+                        onDragOver={onDragOver}
+                        onDragLeave={onDragLeave}
+                        onDrop={onDrop}
+                      >
+                        <div className={cn(
+                          "absolute inset-0 bg-primary/5 rounded-[2rem] border-2 border-dashed border-primary/20 transition-all duration-300 opacity-0 group-hover:opacity-100",
+                          isDragging ? "opacity-100 border-primary/50" : ""
+                        )} />
+                        
+                        <Textarea
+                          id="resume"
+                          placeholder="Paste resume text or drop PDF/DOCX here..."
+                          className="min-h-[200px] bg-white/5 border border-white/5 rounded-[2rem] focus:border-primary/50 focus:ring-0 resize-none transition-all focus:bg-white/[0.08] p-8 text-lg font-bold placeholder:text-white/20"
+                          value={resumeText}
+                          onChange={(e) => setResumeText(e.target.value)}
+                          required={!file}
+                        />
+                        
+                        <div className="absolute right-6 bottom-6">
+                          <label className="cursor-pointer group/upload">
+                            <input 
+                              type="file" 
+                              className="hidden" 
+                              accept=".pdf,.docx,.txt"
+                              onChange={handleFileChange}
+                            />
+                            <div className="flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-primary hover:text-black rounded-full border border-white/10 transition-all duration-300 font-black text-xs uppercase tracking-widest backdrop-blur-md">
+                              <Upload className="w-4 h-4" /> Upload File
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="min-h-[200px] bg-primary/5 border-2 border-dashed border-primary/30 rounded-[2rem] flex flex-col items-center justify-center p-8 gap-4"
+                      >
+                        <div className="h-20 w-20 rounded-[1.5rem] bg-primary/20 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_30px_oklch(0.65_0.25_260/0.1)]">
+                          <FileText className="h-10 w-10" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-black tracking-tight">{file.name}</p>
+                          <p className="text-sm text-muted-foreground font-bold">{(file.size / (1024 * 1024)).toFixed(2)} MB • Ready for ingestion</p>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
+                  
                   <div className="space-y-4">
                     <Label htmlFor="jd" className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-3">
                       <Cpu className="w-4 h-4 text-primary" /> Execution Context (JD)

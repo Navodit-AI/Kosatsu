@@ -46,3 +46,31 @@ export async function analyzeResume(
     throw error;
   }
 }
+export async function analyzeResumeFile(
+  file: File,
+  jobDescription: string,
+  requestOrigin?: string
+): Promise<AnalysisResponse> {
+  const backendUrl = resolveBackendUrl(requestOrigin);
+  
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("job_description", jobDescription);
+
+  try {
+    const response = await fetch(`${backendUrl}/analyze-file`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to analyze resume file");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("API File Call Error:", error);
+    throw error;
+  }
+}

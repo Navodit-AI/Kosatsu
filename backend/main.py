@@ -1,9 +1,12 @@
 import os
+import shutil
+import tempfile
 from functools import lru_cache
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import AnalysisRequest, AnalysisResponse
 from services.analyzer import AnalysisService
+from utils import extract_text_from_file
 import uvicorn
 
 app = FastAPI(title="Kōsatsu API", description="AI Recruitment Matcher")
@@ -46,6 +49,44 @@ async def analyze_resume(request: AnalysisRequest):
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         print(f"Error during analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/analyze-file", response_model=AnalysisResponse)
+async def analyze_resume_file(
+    file: UploadFile = File(...),
+    job_description: str = Form(...)
+):
+    try:
+        # Create a temporary file to store the upload
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
+            shutil.copyfileobj(file.file, tmp)
+            tmp_path = tmp.name
+
+        try:
+            # Extract text from the temporary file
+            resume_text = extract_text_from_file(tmp_path)
+            
+            if not resume_text:
+                raise HTTPException(status_code=400, detail="Could not extract text from file")
+
+            analyzer = get_analyzer()
+            report = analyzer.run_analysis(resume_text, job_description)
+            
+            return AnalysisResponse(
+                score=report.match_score,
+                summary=report.cultural_fit_notes or "Analysis complete",
+                github_insights=report.github_summary or "No GitHub data",
+                full_report=report
+            )
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        print(f"Error during file analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 if __name__ == "__main__":
